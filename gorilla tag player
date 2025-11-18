@@ -1,0 +1,56 @@
+using UnityEngine;
+
+public class GorillaMovement : MonoBehaviour
+{
+    public Rigidbody playerRigidbody;
+    public Transform leftHand;
+    public Transform rightHand;
+
+    public float pushForce = 10f;
+    public float jumpForce = 5f;
+
+    private bool isGrounded;
+
+    void Update()
+    {
+        // Check for ground
+        isGrounded = Physics.Raycast(transform.position, Vector3.down, 1.1f);
+
+        // Hand push input (replace with your VR input)
+        if (Input.GetButtonDown("Fire1")) // Left hand push
+        {
+            Push(leftHand);
+        }
+
+        if (Input.GetButtonDown("Fire2")) // Right hand push
+        {
+            Push(rightHand);
+        }
+
+        // Jump
+        if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
+        {
+            playerRigidbody.AddForce(Vector3.up * jumpForce, ForceMode.VelocityChange);
+        }
+    }
+
+    void Push(Transform hand)
+    {
+        RaycastHit hit;
+        if (Physics.Raycast(hand.position, hand.forward, out hit, 2f))
+        {
+            Rigidbody rb = hit.collider.attachedRigidbody;
+            if (rb != null)
+            {
+                // Push off surfaces
+                Vector3 pushDirection = hand.forward;
+                playerRigidbody.AddForce(pushDirection * pushForce, ForceMode.VelocityChange);
+            }
+        }
+        else
+        {
+            // Push into air
+            playerRigidbody.AddForce(hand.forward * pushForce, ForceMode.VelocityChange);
+        }
+    }
+}
